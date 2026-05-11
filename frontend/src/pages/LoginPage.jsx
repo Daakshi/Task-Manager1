@@ -1,0 +1,119 @@
+import { useForm } from 'react-hook-form';
+import { useState } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+import { getErrorMessage } from '../utils/helpers';
+import toast from 'react-hot-toast';
+import { Eye, EyeOff, Mail, Lock, CheckSquare } from 'lucide-react';
+import Spinner from '../components/common/Spinner';
+
+const LoginPage = () => {
+  const { login } = useAuth();
+  const navigate = useNavigate();
+  const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm();
+
+  const onSubmit = async (data) => {
+    setLoading(true);
+    try {
+      await login(data);
+      toast.success('Welcome back! 👋');
+      navigate('/dashboard');
+    } catch (err) {
+      toast.error(getErrorMessage(err));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="auth-bg flex items-center justify-center min-h-screen p-4">
+      <div className="absolute top-0 right-0 w-96 h-96 bg-violet-600/15 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute bottom-0 left-0 w-80 h-80 bg-indigo-600/15 rounded-full blur-3xl pointer-events-none" />
+
+      <div className="relative w-full max-w-md">
+        <div className="flex items-center justify-center gap-3 mb-8">
+          <div className="w-12 h-12 bg-black rounded-2xl flex items-center justify-center shadow-lg">
+            <CheckSquare size={24} className="text-white" />
+          </div>
+          <span className="text-3xl font-black text-slate-900 tracking-tight">TaskFlow</span>
+        </div>
+
+        <div className="glass-panel rounded-[2rem] p-8 md:p-10 shadow-2xl border border-white/60">
+          <div className="mb-8">
+            <h1 className="text-3xl font-extrabold text-slate-900 mb-2">Welcome back</h1>
+            <p className="text-slate-500 font-medium">Sign in to continue to TaskFlow</p>
+          </div>
+
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+            <div>
+              <label className="block text-sm font-bold text-slate-700 mb-2">Email Address</label>
+              <div className="relative">
+                <Mail size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+                <input
+                  {...register('email', {
+                    required: 'Email is required',
+                    pattern: { value: /^\S+@\S+\.\S+$/, message: 'Enter a valid email' },
+                  })}
+                  type="email"
+                  placeholder="you@example.com"
+                  className="w-full bg-white/60 border border-white/80 text-slate-900 placeholder-slate-400 font-medium rounded-2xl pl-12 pr-4 py-3.5 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 transition-all shadow-sm"
+                />
+              </div>
+              {errors.email && (
+                <p className="text-red-500 text-xs mt-1.5 font-medium">{errors.email.message}</p>
+              )}
+            </div>
+
+            <div>
+              <label className="block text-sm font-bold text-slate-700 mb-2">Password</label>
+              <div className="relative">
+                <Lock size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+                <input
+                  {...register('password', { required: 'Password is required' })}
+                  type={showPassword ? 'text' : 'password'}
+                  placeholder="Enter your password"
+                  className="w-full bg-white/60 border border-white/80 text-slate-900 placeholder-slate-400 font-medium rounded-2xl pl-12 pr-12 py-3.5 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 transition-all shadow-sm"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((p) => !p)}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
+                >
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
+              {errors.password && (
+                <p className="text-red-500 text-xs mt-1.5 font-medium">{errors.password.message}</p>
+              )}
+            </div>
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-black hover:bg-slate-800 disabled:opacity-60 disabled:cursor-not-allowed text-white font-bold py-3.5 rounded-2xl flex items-center justify-center gap-2 shadow-lg transition-all hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0 mt-6"
+            >
+              {loading ? <Spinner size="sm" /> : null}
+              {loading ? 'Signing in...' : 'Sign In'}
+            </button>
+          </form>
+
+          <p className="text-center text-slate-500 font-medium text-sm mt-8">
+            Don't have an account?{' '}
+            <Link to="/signup" className="text-indigo-600 hover:text-indigo-700 font-bold transition-colors">
+              Sign up free
+            </Link>
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default LoginPage;
