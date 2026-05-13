@@ -15,6 +15,7 @@ const app = express();
 // Middleware
 const allowedOrigins = [
   process.env.CLIENT_URL,
+  'https://taskflow-roan-delta.vercel.app',
   'http://localhost:5173',
   'http://localhost:3000'
 ].filter(Boolean);
