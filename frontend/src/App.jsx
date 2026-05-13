@@ -10,6 +10,8 @@ import ProjectPage from './pages/ProjectPage';
 import ProjectsPage from './pages/ProjectsPage';
 import LandingPage from './pages/LandingPage';
 import ProfilePage from './pages/ProfilePage';
+import DueTasksPage from './pages/DueTasksPage';
+import ActivityPage from './pages/ActivityPage';
 
 function App() {
   return (
@@ -48,6 +50,22 @@ function App() {
               element={
                 <ProtectedRoute>
                   <ProjectPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/due-tasks"
+              element={
+                <ProtectedRoute>
+                  <DueTasksPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/activity"
+              element={
+                <ProtectedRoute>
+                  <ActivityPage />
                 </ProtectedRoute>
               }
             />

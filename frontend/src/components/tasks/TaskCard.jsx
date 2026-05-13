@@ -5,18 +5,19 @@ import toast from 'react-hot-toast';
 import { Pencil, Trash2, Calendar, ChevronDown, User } from 'lucide-react';
 import Spinner from '../common/Spinner';
 
-const STATUSES = ['Todo', 'In Progress', 'Done'];
+const STATUSES = ['Todo', 'In Progress', 'Review', 'Completed'];
 
 const PRIORITY_STYLES = {
-  High:   { bg: '#fee2e2', color: '#dc2626', dot: '#dc2626' },
-  Medium: { bg: '#fef3c7', color: '#b45309', dot: '#f59e0b' },
-  Low:    { bg: '#d1fae5', color: '#065f46', dot: '#10b981' },
+  High:   { bg: 'rgba(239, 68, 68, 0.15)', color: '#f87171', dot: '#ef4444' },
+  Medium: { bg: 'rgba(245, 158, 11, 0.15)', color: '#fbbf24', dot: '#f59e0b' },
+  Low:    { bg: 'rgba(16, 185, 129, 0.15)', color: '#34d399', dot: '#10b981' },
 };
 
 const STATUS_STYLES = {
-  'Todo':        { bg: '#ede9fe', color: '#7c3aed' },
-  'In Progress': { bg: '#fef3c7', color: '#b45309' },
-  'Done':        { bg: '#d1fae5', color: '#065f46' },
+  'Todo':        { bg: 'rgba(114, 225, 237, 0.15)', color: '#72E1ED' },
+  'In Progress': { bg: 'rgba(245, 158, 11, 0.15)', color: '#fbbf24' },
+  'Review':      { bg: 'rgba(168, 85, 247, 0.15)', color: '#a855f7' },
+  'Completed':   { bg: 'rgba(190, 242, 100, 0.15)', color: '#BEF264' },
 };
 
 const TaskCard = ({ task, members, onEdit, onDelete, onStatusChange, onDragStart }) => {
@@ -51,7 +52,7 @@ const TaskCard = ({ task, members, onEdit, onDelete, onStatusChange, onDragStart
     }
   };
 
-  const overdue = isOverdue(task.dueDate) && task.status !== 'Done';
+  const overdue = isOverdue(task.dueDate) && task.status !== 'Completed';
   const ps = PRIORITY_STYLES[task.priority] || PRIORITY_STYLES.Medium;
   const ss = STATUS_STYLES[task.status]   || STATUS_STYLES['Todo'];
 
@@ -78,7 +79,7 @@ const TaskCard = ({ task, members, onEdit, onDelete, onStatusChange, onDragStart
       </div>
 
       {/* Title */}
-      <h3 className={`tc-title ${task.status === 'Done' ? 'tc-title--done' : ''}`}>
+      <h3 className={`tc-title ${task.status === 'Completed' ? 'tc-title--done' : ''}`}>
         {task.title}
       </h3>
 

@@ -9,7 +9,7 @@ import { Plus } from 'lucide-react';
 import '../../dashboard.css';
 
 const PRIORITIES = ['Low', 'Medium', 'High'];
-const STATUSES = ['Todo', 'In Progress', 'Done'];
+const STATUSES = ['Todo', 'In Progress', 'Review', 'Completed'];
 
 const CreateTaskModal = ({ isOpen, onClose, projectId, members, onCreated, defaultStatus }) => {
   const [loading, setLoading] = useState(false);

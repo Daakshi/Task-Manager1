@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import '../dashboard.css';
 import { Link } from 'react-router-dom';
 import { projectService } from '../services';
-import { getErrorMessage } from '../utils/helpers';
+import { getErrorMessage, formatDate } from '../utils/helpers';
 import DashboardLayout from '../layouts/DashboardLayout';
 import Spinner from '../components/common/Spinner';
 import toast from 'react-hot-toast';
@@ -10,17 +10,17 @@ import { MoreHorizontal, Calendar, FolderOpen, Plus } from 'lucide-react';
 
 /* ── helpers ── */
 const CATEGORY_COLORS = {
-  Development: { bg: '#ede9fe', text: '#7c3aed', border: '#7c3aed' },
-  Marketing:   { bg: '#fce7f3', text: '#be185d', border: '#ec4899' },
-  Research:    { bg: '#d1fae5', text: '#065f46', border: '#14b8a6' },
-  Design:      { bg: '#fef3c7', text: '#92400e', border: '#f59e0b' },
-  default:     { bg: '#e0e7ff', text: '#3730a3', border: '#635BFF' },
+  Development: { bg: 'rgba(190, 242, 100, 0.15)', text: '#BEF264', border: '#BEF264' },
+  Marketing:   { bg: 'rgba(114, 225, 237, 0.15)', text: '#72E1ED', border: '#72E1ED' },
+  Research:    { bg: 'rgba(20, 184, 166, 0.2)', text: '#5eead4', border: '#14b8a6' },
+  Design:      { bg: 'rgba(245, 158, 11, 0.2)', text: '#fbbf24', border: '#f59e0b' },
+  default:     { bg: 'rgba(190, 242, 100, 0.15)', text: '#BEF264', border: '#BEF264' },
 };
 
 const PROGRESS_COLORS = [
-  'linear-gradient(90deg,#635BFF,#a855f7)',
-  'linear-gradient(90deg,#ec4899,#f97316)',
-  'linear-gradient(90deg,#14b8a6,#06b6d4)',
+  'linear-gradient(90deg, #BEF264, #72E1ED)',
+  'linear-gradient(90deg, #72E1ED, #BEF264)',
+  'linear-gradient(90deg, #BEF264, #72E1ED)',
 ];
 
 /* ── Project Card ── */
@@ -28,51 +28,69 @@ const ProjectCard = ({ project, index }) => {
   const cats = ['Development','Marketing','Research','Design'];
   const cat  = cats[index % cats.length];
   const c    = CATEGORY_COLORS[cat] || CATEGORY_COLORS.default;
-  const prog = [75, 32, 90][index % 3];
+  const prog = project.progress || [75, 32, 90][index % 3];
 
   return (
     <Link to={`/projects/${project._id}`} className="db-project-card" style={{ '--accent': c.border }}>
-      <div className="db-project-card-top">
-        <span className="db-project-badge" style={{ background: c.bg, color: c.text }}>{cat}</span>
-        <button className="db-project-menu" onClick={e => e.preventDefault()}>
-          <MoreHorizontal size={16} />
-        </button>
-      </div>
+      {/* Glow Effect */}
+      <div className="db-project-card-glow" style={{ background: c.border }} />
 
-      <h3 className="db-project-title">{project.name}</h3>
-      <p className="db-project-desc">
-        {project.description || 'No description provided for this project yet.'}
-      </p>
+      <div className="db-project-card-inner">
+        <div className="db-project-card-header">
+          <div className="db-project-card-cat">
+            <div className="db-cat-dot" style={{ background: c.border }} />
+            <span style={{ color: c.text }}>{cat}</span>
+          </div>
+          <div className="db-project-card-menu">
+             <MoreHorizontal size={14} />
+          </div>
+        </div>
 
-      <div className="db-project-progress">
-        <div className="db-progress-label">
-          <span>Progress</span>
-          <span>{prog}%</span>
+        <div className="db-project-card-body">
+          <h3 className="db-project-title">{project.name}</h3>
+          <p className="db-project-desc">
+            {project.description || 'Elevating the workflow through intelligent task management and real-time collaboration.'}
+          </p>
         </div>
-        <div className="db-progress-track">
-          <div
-            className="db-progress-fill"
-            style={{ width: `${prog}%`, background: PROGRESS_COLORS[index % 3] }}
-          />
-        </div>
-      </div>
 
-      <div className="db-project-footer">
-        <div className="db-member-avatars">
-          {project.members.slice(0, 3).map((m, i) => (
-            <div key={i} className="db-member-avatar" style={{ zIndex: 10 - i }}>
-              {(m.name || m.email || 'U')[0].toUpperCase()}
-            </div>
-          ))}
-          {project.members.length > 3 && (
-            <div className="db-member-avatar db-member-avatar--more">
-              +{project.members.length - 3}
-            </div>
-          )}
+        <div className="db-project-card-progress">
+          <div className="db-progress-info">
+            <span>Project Health</span>
+            <span>{prog}%</span>
+          </div>
+          <div className="db-progress-bar-wrap">
+            <div 
+              className="db-progress-bar-fill" 
+              style={{ width: `${prog}%`, background: `linear-gradient(90deg, ${c.border}, #ffffff)` }} 
+            />
+          </div>
         </div>
-        <div className="db-project-date">
-          <Calendar size={12} />
-          <span>Oct 24</span>
+
+        <div className="db-project-card-footer">
+          <div className="db-member-stack">
+            {project.members.slice(0, 3).map((m, i) => (
+              <div 
+                key={i} 
+                className="db-stack-item" 
+                style={{ 
+                  zIndex: 5 - i,
+                  background: `linear-gradient(135deg, ${c.border}, #ffffff)`,
+                  color: '#000'
+                }}
+              >
+                {(m.name || m.email || 'U')[0].toUpperCase()}
+              </div>
+            ))}
+            {project.members.length > 3 && (
+              <div className="db-stack-item db-stack-more">
+                +{project.members.length - 3}
+              </div>
+            )}
+          </div>
+          <div className="db-project-date-tag">
+            <Calendar size={12} />
+            <span>{project.createdAt ? formatDate(project.createdAt) : 'Oct 24'}</span>
+          </div>
         </div>
       </div>
     </Link>

@@ -28,25 +28,25 @@ const AddMemberModal = ({ isOpen, onClose, project, onUpdated }) => {
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Add Team Member">
-      <div className="space-y-5">
+      <div className="space-y-6">
         {/* Current members */}
         <div>
-          <p className="text-sm font-medium text-gray-400 mb-3">Current Members ({project?.members?.length || 0})</p>
-          <div className="space-y-2 max-h-40 overflow-y-auto pr-1">
+          <p className="db-form-label mb-3">Current Members ({project?.members?.length || 0})</p>
+          <div className="space-y-2 max-h-48 overflow-y-auto pr-2 custom-scrollbar">
             {project?.members?.map((member) => (
               <div
                 key={member._id}
-                className="flex items-center gap-3 p-2.5 bg-gray-800 rounded-lg"
+                className="flex items-center gap-3 p-3 bg-white/5 border border-white/10 rounded-xl"
               >
-                <div className="w-8 h-8 bg-violet-600 rounded-full flex items-center justify-center text-white text-xs font-semibold flex-shrink-0">
+                <div className="w-9 h-9 bg-indigo-600 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
                   {getInitials(member.name)}
                 </div>
-                <div>
-                  <p className="text-white text-sm font-medium">{member.name}</p>
-                  <p className="text-gray-500 text-xs">{member.email}</p>
+                <div className="flex-1 min-width-0">
+                  <p className="text-white text-sm font-semibold truncate">{member.name}</p>
+                  <p className="text-gray-400 text-xs truncate">{member.email}</p>
                 </div>
                 {member._id === project?.owner?._id && (
-                  <span className="ml-auto text-xs bg-violet-600/20 text-violet-400 px-2 py-0.5 rounded-full border border-violet-600/30">Owner</span>
+                  <span className="text-[10px] bg-indigo-500/20 text-indigo-400 px-2 py-0.5 rounded-full border border-indigo-500/30 font-bold uppercase tracking-wider">Owner</span>
                 )}
               </div>
             ))}
@@ -54,10 +54,10 @@ const AddMemberModal = ({ isOpen, onClose, project, onUpdated }) => {
         </div>
 
         {/* Add member form */}
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-300 mb-1.5">
-              Invite by Email <span className="text-red-400">*</span>
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <div className="db-form-group">
+            <label className="db-form-label">
+              Invite by Email <span className="db-form-label-req">*</span>
             </label>
             <input
               {...register('email', {
@@ -66,23 +66,23 @@ const AddMemberModal = ({ isOpen, onClose, project, onUpdated }) => {
               })}
               type="email"
               placeholder="colleague@example.com"
-              className="w-full bg-gray-800 border border-gray-700 text-white placeholder-gray-600 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent"
+              className="db-form-input"
             />
-            {errors.email && <p className="text-red-400 text-xs mt-1">{errors.email.message}</p>}
+            {errors.email && <p className="db-form-error">{errors.email.message}</p>}
           </div>
 
-          <div className="flex gap-3">
+          <div className="db-modal-actions">
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 bg-gray-800 hover:bg-gray-700 text-gray-300 font-medium py-2.5 rounded-xl text-sm transition-colors"
+              className="db-btn-cancel"
             >
               Close
             </button>
             <button
               type="submit"
               disabled={loading}
-              className="flex-1 bg-violet-600 hover:bg-violet-500 disabled:opacity-60 text-white font-medium py-2.5 rounded-xl text-sm flex items-center justify-center gap-2 transition-all"
+              className="db-btn-submit"
             >
               {loading ? <Spinner size="sm" /> : <UserPlus size={16} />}
               {loading ? 'Adding...' : 'Add Member'}

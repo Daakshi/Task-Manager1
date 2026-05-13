@@ -27,6 +27,7 @@ const signup = async (req, res) => {
         _id: user._id,
         name: user.name,
         email: user.email,
+        role: user.role,
       },
     });
   } catch (error) {
@@ -64,6 +65,7 @@ const login = async (req, res) => {
         _id: user._id,
         name: user.name,
         email: user.email,
+        role: user.role,
       },
     });
   } catch (error) {
@@ -81,6 +83,7 @@ const getMe = async (req, res) => {
       _id: req.user._id,
       name: req.user.name,
       email: req.user.email,
+      role: req.user.role,
     });
   } catch (error) {
     res.status(500).json({ message: 'Server error' });
@@ -92,14 +95,15 @@ const getMe = async (req, res) => {
 // @access  Private
 const updateMe = async (req, res) => {
   try {
-    const { name } = req.body;
+    const { name, role } = req.body;
     if (!name || name.trim().length < 2) {
       return res.status(400).json({ message: 'Name must be at least 2 characters' });
     }
-    const user = await require('../models/User').findById(req.user._id);
+    const user = await User.findById(req.user._id);
     user.name = name.trim();
+    if (role !== undefined) user.role = role.trim();
     await user.save();
-    res.json({ _id: user._id, name: user.name, email: user.email });
+    res.json({ _id: user._id, name: user.name, email: user.email, role: user.role });
   } catch (error) {
     console.error('Update profile error:', error);
     res.status(500).json({ message: 'Server error updating profile' });

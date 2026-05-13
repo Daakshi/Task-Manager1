@@ -8,7 +8,7 @@ import Spinner from '../common/Spinner';
 import { Save } from 'lucide-react';
 
 const PRIORITIES = ['Low', 'Medium', 'High'];
-const STATUSES = ['Todo', 'In Progress', 'Done'];
+const STATUSES = ['Todo', 'In Progress', 'Review', 'Completed'];
 
 const EditTaskModal = ({ isOpen, onClose, task, members, onUpdated }) => {
   const [loading, setLoading] = useState(false);
@@ -50,48 +50,48 @@ const EditTaskModal = ({ isOpen, onClose, task, members, onUpdated }) => {
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Edit Task" size="lg">
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+      <form onSubmit={handleSubmit(onSubmit)}>
         {/* Title */}
-        <div>
-          <label className="block text-sm font-medium text-gray-300 mb-1.5">
-            Title <span className="text-red-400">*</span>
+        <div className="db-form-group">
+          <label className="db-form-label">
+            Title <span className="db-form-label-req">*</span>
           </label>
           <input
             {...register('title', {
               required: 'Title is required',
               minLength: { value: 2, message: 'At least 2 characters' },
             })}
-            className="w-full bg-gray-800 border border-gray-700 text-white rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent"
+            className="db-form-input"
           />
-          {errors.title && <p className="text-red-400 text-xs mt-1">{errors.title.message}</p>}
+          {errors.title && <p className="db-form-error">{errors.title.message}</p>}
         </div>
 
         {/* Description */}
-        <div>
-          <label className="block text-sm font-medium text-gray-300 mb-1.5">Description</label>
+        <div className="db-form-group">
+          <label className="db-form-label">Description</label>
           <textarea
             {...register('description')}
             rows={3}
-            className="w-full bg-gray-800 border border-gray-700 text-white placeholder-gray-600 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent resize-none"
+            className="db-form-textarea"
           />
         </div>
 
         {/* Priority & Status */}
-        <div className="grid grid-cols-2 gap-3">
+        <div className="db-form-row">
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-1.5">Priority</label>
+            <label className="db-form-label">Priority</label>
             <select
               {...register('priority')}
-              className="w-full bg-gray-800 border border-gray-700 text-white rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500"
+              className="db-form-select"
             >
               {PRIORITIES.map((p) => <option key={p} value={p}>{p}</option>)}
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-1.5">Status</label>
+            <label className="db-form-label">Status</label>
             <select
               {...register('status')}
-              className="w-full bg-gray-800 border border-gray-700 text-white rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500"
+              className="db-form-select"
             >
               {STATUSES.map((s) => <option key={s} value={s}>{s}</option>)}
             </select>
@@ -99,12 +99,12 @@ const EditTaskModal = ({ isOpen, onClose, task, members, onUpdated }) => {
         </div>
 
         {/* Assignee & Due Date */}
-        <div className="grid grid-cols-2 gap-3">
+        <div className="db-form-row">
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-1.5">Assign To</label>
+            <label className="db-form-label">Assign To</label>
             <select
               {...register('assignedTo')}
-              className="w-full bg-gray-800 border border-gray-700 text-white rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500"
+              className="db-form-select"
             >
               <option value="">Unassigned</option>
               {members?.map((m) => (
@@ -113,28 +113,28 @@ const EditTaskModal = ({ isOpen, onClose, task, members, onUpdated }) => {
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-1.5">Due Date</label>
+            <label className="db-form-label">Due Date</label>
             <input
               {...register('dueDate')}
               type="date"
-              className="w-full bg-gray-800 border border-gray-700 text-white rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 [color-scheme:dark]"
+              className="db-form-input [color-scheme:dark]"
             />
           </div>
         </div>
 
         {/* Actions */}
-        <div className="flex gap-3 pt-2">
+        <div className="db-modal-actions">
           <button
             type="button"
             onClick={onClose}
-            className="flex-1 bg-gray-800 hover:bg-gray-700 text-gray-300 font-medium py-2.5 rounded-xl text-sm transition-colors"
+            className="db-btn-cancel"
           >
             Cancel
           </button>
           <button
             type="submit"
             disabled={loading}
-            className="flex-1 bg-violet-600 hover:bg-violet-500 disabled:opacity-60 text-white font-medium py-2.5 rounded-xl text-sm flex items-center justify-center gap-2 transition-all"
+            className="db-btn-submit"
           >
             {loading ? <Spinner size="sm" /> : <Save size={16} />}
             {loading ? 'Saving...' : 'Save Changes'}

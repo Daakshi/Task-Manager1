@@ -1,7 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import '../landing.css';
 import { Link } from 'react-router-dom';
-import heroImage from '../assets/hero-dashboard.png';
 import {
   Sparkles, ArrowRight, Play, CheckCircle2,
   Layers, Zap, BarChart3, Moon, Share2,
@@ -21,57 +20,30 @@ const UserIcon = ({ size = 20 }) => (
 );
 
 /* ─────────────────────────────────────────────
-   Animated counter hook
-───────────────────────────────────────────── */
-const useCounter = (target, duration = 2000) => {
-  const [count, setCount] = React.useState(0);
-  const ref = useRef(null);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(([entry]) => {
-      if (entry.isIntersecting) {
-        let start = 0;
-        const step = target / (duration / 16);
-        const timer = setInterval(() => {
-          start += step;
-          if (start >= target) { setCount(target); clearInterval(timer); }
-          else setCount(Math.floor(start));
-        }, 16);
-        observer.disconnect();
-      }
-    }, { threshold: 0.4 });
-    if (ref.current) observer.observe(ref.current);
-    return () => observer.disconnect();
-  }, [target, duration]);
-
-  return [count, ref];
-};
-
-/* ─────────────────────────────────────────────
    Feature Card
 ───────────────────────────────────────────── */
 const FeatureCard = ({ icon: Icon, title, desc, linkLabel, color }) => {
   const colors = {
     indigo: {
-      border: 'rgba(99,91,255,0.25)',
-      iconBg: '#f0efff',
-      iconColor: '#635BFF',
-      link: '#635BFF',
-      linkHover: '#4f46e5',
+      border: 'rgba(99,102,241,0.15)',
+      iconBg: 'rgba(99,102,241,0.12)',
+      iconColor: '#6366f1',
+      link: '#6366f1',
+      linkHover: '#818cf8',
     },
     purple: {
-      border: 'rgba(168,85,247,0.25)',
-      iconBg: '#faf5ff',
-      iconColor: '#a855f7',
-      link: '#a855f7',
-      linkHover: '#7e22ce',
+      border: 'rgba(99,102,241,0.15)',
+      iconBg: 'rgba(99,102,241,0.12)',
+      iconColor: '#6366f1',
+      link: '#6366f1',
+      linkHover: '#818cf8',
     },
     teal: {
-      border: 'rgba(20,184,166,0.25)',
-      iconBg: '#f0fdfa',
-      iconColor: '#14b8a6',
-      link: '#0d9488',
-      linkHover: '#0f766e',
+      border: 'rgba(99,102,241,0.15)',
+      iconBg: 'rgba(99,102,241,0.12)',
+      iconColor: '#6366f1',
+      link: '#6366f1',
+      linkHover: '#818cf8',
     },
   };
   const c = colors[color] || colors.indigo;
@@ -79,31 +51,13 @@ const FeatureCard = ({ icon: Icon, title, desc, linkLabel, color }) => {
   return (
     <div className="lp-feature-card" style={{ '--card-border': c.border }}>
       <div className="lp-feature-icon" style={{ background: c.iconBg, color: c.iconColor }}>
-        <Icon size={22} />
+        <Icon size={24} />
       </div>
       <h3 className="lp-feature-title">{title}</h3>
       <p className="lp-feature-desc">{desc}</p>
       <a href="#" className="lp-feature-link" style={{ color: c.link }}>
-        {linkLabel} <ArrowRight size={15} className="lp-arrow" />
+        {linkLabel} <ArrowRight size={16} className="lp-arrow" />
       </a>
-    </div>
-  );
-};
-
-/* ─────────────────────────────────────────────
-   Stat Card
-───────────────────────────────────────────── */
-const StatCard = ({ target, suffix, label, icon: Icon, color }) => {
-  const [count, ref] = useCounter(target);
-  return (
-    <div className="lp-stat-card" ref={ref}>
-      <div className="lp-stat-icon" style={{ color }}>
-        <Icon size={20} />
-      </div>
-      <div className="lp-stat-number" style={{ color }}>
-        {count.toLocaleString()}{suffix}
-      </div>
-      <div className="lp-stat-label">{label}</div>
     </div>
   );
 };
@@ -129,11 +83,17 @@ const LandingPage = () => {
       <header className="lp-header">
         <div className="lp-nav-inner">
           {/* Logo */}
-          <div className="lp-logo">TaskFlow</div>
+          <div className="lp-logo" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <div style={{
+              width: '32px', height: '32px', background: '#BEF264', borderRadius: '8px',
+              display: 'flex', alignItems: 'center', justifyContent: 'center'
+            }}>
+              <div style={{ width: '12px', height: '12px', background: '#000', borderRadius: '2px' }} />
+            </div>
+            TaskFlow
+          </div>
 
-          {/* Nav links */}
-          <nav className="lp-nav-links">
-          </nav>
+          {/* Nav links removed */}
 
           {/* Auth buttons */}
           <div className="lp-nav-actions">
@@ -148,12 +108,6 @@ const LandingPage = () => {
       ════════════════════════════════════ */}
       <section className="lp-hero">
         <div className="lp-hero-inner">
-
-          {/* Pill badge */}
-          <div className="lp-badge">
-            <Sparkles size={13} className="lp-badge-icon" />
-            Introducing v2.0 with Smart AI Workflows
-          </div>
 
           {/* Heading */}
           <h1 className="lp-hero-h1">
@@ -177,36 +131,38 @@ const LandingPage = () => {
         </div>
       </section>
 
+      {/* Hero image removed */}
+
       {/* ════════════════════════════════════
           FEATURES — matches reference exactly
       ════════════════════════════════════ */}
       <section className="lp-features" id="features">
         <div className="lp-section-inner">
           <div className="lp-section-label">
-            <Layers size={14} style={{ marginRight: 6 }} /> Tools for Modern Teams
+            <Layers size={14} style={{ marginRight: 8 }} /> Tools for Modern Teams
           </div>
           <h2 className="lp-section-h2">Tools for Modern Teams</h2>
-          <p className="lp-section-sub">Streamline your operations with features built for speed.</p>
+          <p className="lp-section-sub">Streamline your operations with features built for speed and precision in a high-fidelity interface.</p>
 
           <div className="lp-features-grid">
             <FeatureCard
               icon={Layers}
               title="Project Management"
-              desc="Create expansive projects and orchestrate your team members effortlessly with automated permissions."
+              desc="Organize complex workflows with layered glass containers that help you visualize progress without the clutter."
               linkLabel="Learn More"
               color="indigo"
             />
             <FeatureCard
               icon={Zap}
               title="Task Management"
-              desc="Granular control over every task. Create, edit, and delegate responsibilities with natural language processing."
+              desc="Prioritize with intent. Our focus-first design ensures your most important tasks always take center stage."
               linkLabel="Explore Features"
               color="purple"
             />
             <FeatureCard
               icon={BarChart3}
               title="Real-time Tracking"
-              desc="Visualize progress through live dashboards. Status updates reflect instantly across the entire ecosystem."
+              desc="Live updates synced across every device. Experience zero latency in team collaboration and instant status reflection."
               linkLabel="View Analytics"
               color="teal"
             />
@@ -229,14 +185,9 @@ const LandingPage = () => {
           </div>
 
           <div className="lp-footer-links">
-            {['Privacy Policy','Terms of Service','Cookie Settings','Contact Us'].map(l => (
+            {['Privacy Policy', 'Terms of Service'].map(l => (
               <a key={l} href="#" className="lp-footer-link">{l}</a>
             ))}
-          </div>
-
-          <div className="lp-footer-social">
-            <a href="#" className="lp-social-btn"><Share2 size={14} /></a>
-            <a href="#" className="lp-social-btn"><Sparkles size={14} /></a>
           </div>
         </div>
       </footer>

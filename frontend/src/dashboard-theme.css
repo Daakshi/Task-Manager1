@@ -1,0 +1,153 @@
+/* =============================================================
+   Dashboard Premium Theme
+   -------------------------------------------------------------
+   • Dark background with subtle animated gradient.
+   • Glassmorphism for sidebar, cards, and panels.
+   • Ambient glow blobs: lime green, violet, indigo.
+   • Micro‑animations on hover & entry.
+   ============================================================= */
+
+/* Root layout – dark canvas */
+.db-root {
+  background: #000000; /* pure black */
+  min-height: 100vh;
+  overflow: hidden;
+  position: relative;
+  color-scheme: dark;
+}
+
+/* Animated gradient background (optional subtle) */
+.db-root::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 20% 30%, #0f172a 0%, transparent 60%),
+              radial-gradient(circle at 80% 70%, #0f172a 0%, transparent 60%);
+  z-index: -2;
+}
+
+/* Glow blobs – positioned corners */
+.db-root::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 10% 10%, rgba(34,197,94,0.35), transparent 40%),
+    radial-gradient(circle at 90% 10%, rgba(168,85,247,0.35), transparent 40%),
+    radial-gradient(circle at 5% 90%, rgba(99,102,241,0.35), transparent 40%);
+  animation: glowPulse 8s ease-in-out infinite;
+  z-index: -1;
+}
+
+@keyframes glowPulse {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}
+
+/* Glass panel – reusable */
+.glass {
+  background: rgba(255, 255, 255, 0.07);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,0.12);
+  box-shadow: 0 4px 30px rgba(0,0,0,0.5);
+  border-radius: 12px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.glass:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px rgba(0,0,0,0.6);
+}
+
+/* Sidebar – apply glass */
+.db-sidebar {
+  background: rgba(0,0,0,0.45);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-right: 1px solid rgba(255,255,255,0.08);
+}
+
+/* Project & task cards – glass + entry animation */
+.db-project-card,
+.db-task-row {
+  composes: glass;
+  animation: fadeInUp 0.5s ease-out both;
+}
+
+/* Hover lift for cards */
+.db-project-card:hover,
+.db-task-row:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 36px rgba(0,0,0,0.4);
+}
+
+/* Fade‑in‑up keyframes (reuse from index.css) */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Scrollbars – faint white */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.2);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255,255,255,0.35);
+}
+
+/* Button accent – vibrant hue */
+.db-btn-primary {
+  background: linear-gradient(135deg, #22c55e, #a855f7, #6366f1);
+  color: #fff;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 10px;
+  font-weight: 600;
+  transition: background 0.3s, transform 0.2s;
+}
+.db-btn-primary:hover {
+  transform: translateY(-2px);
+  background: linear-gradient(135deg, #16a34a, #9333ea, #4f46e5);
+}
+
+/* Icon button – subtle glass */
+.db-icon-btn {
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.12);
+  color: #cbd5e1;
+  transition: background 0.2s, color 0.2s;
+}
+.db-icon-btn:hover {
+  background: rgba(255,255,255,0.15);
+  color: #fff;
+}
+
+/* Footer – keep minimal glass */
+.db-footer {
+  background: rgba(0,0,0,0.35);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-top: 1px solid rgba(255,255,255,0.1);
+}
+
+/* Ensure all text stays readable */
+.db-sidebar, .db-main, .db-footer {
+  color: #e2e8f0;
+}
+
+/* Responsive tweaks */
+@media (max-width: 768px) {
+  .db-sidebar {
+    width: 200px;
+  }
+}

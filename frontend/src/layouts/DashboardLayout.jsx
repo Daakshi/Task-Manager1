@@ -12,7 +12,9 @@ import '../dashboard.css';
 
 const NAV_ITEMS = [
   { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
-  { to: '/projects',  icon: FolderOpen,     label: 'Projects'  },
+  { to: '/projects',  icon: FolderOpen,      label: 'Projects'  },
+  { to: '/due-tasks', icon: CheckSquare,     label: 'Due Tasks' },
+  { to: '/activity',  icon: BarChart2,       label: 'Activity Timeline' },
 ];
 
 const DashboardLayout = ({ children, projects, onProjectCreated }) => {
@@ -22,7 +24,7 @@ const DashboardLayout = ({ children, projects, onProjectCreated }) => {
   const [createModalOpen, setCreateModalOpen] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  const handleLogout = () => { logout(); navigate('/login'); };
+  const handleLogout = () => { logout(); navigate('/'); };
   const handleCreated = (project) => {
     if (onProjectCreated) onProjectCreated(project);
     navigate(`/projects/${project._id}`);
@@ -32,6 +34,11 @@ const DashboardLayout = ({ children, projects, onProjectCreated }) => {
 
   return (
     <div className="db-root">
+      {/* Background Blobs & Grid */}
+      <div className="db-grid-bg" />
+      <div className="db-blob db-blob-1" />
+      <div className="db-blob db-blob-2" />
+      <div className="db-blob db-blob-3" />
 
       {/* ── Mobile overlay ── */}
       {sidebarOpen && (
@@ -43,22 +50,15 @@ const DashboardLayout = ({ children, projects, onProjectCreated }) => {
       ════════════════════════════════ */}
       <aside className={`db-sidebar ${sidebarOpen ? 'db-sidebar--open' : ''}`}>
 
-        {/* Logo */}
         <div className="db-sidebar-logo">
-          <span className="db-logo-text">TaskFlow</span>
-          <button className="db-sidebar-close" onClick={() => setSidebarOpen(false)}>
-            <X size={18} />
-          </button>
-        </div>
-
-        {/* User card */}
-        <div className="db-user-card">
-          <div className="db-user-avatar">
-            {getInitials(user?.name)}
-          </div>
-          <div className="db-user-info">
-            <p className="db-user-name">{user?.name || 'User'}</p>
-            <p className="db-user-role">Product Designer</p>
+          <div className="db-logo-text" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <div style={{ 
+              width: '28px', height: '28px', background: '#BEF264', borderRadius: '7px',
+              display: 'flex', alignItems: 'center', justifyContent: 'center'
+            }}>
+              <div style={{ width: '10px', height: '10px', background: '#000', borderRadius: '2px' }} />
+            </div>
+            TaskFlow
           </div>
         </div>
 
@@ -80,22 +80,25 @@ const DashboardLayout = ({ children, projects, onProjectCreated }) => {
         {/* Spacer */}
         <div style={{ flex: 1 }} />
 
-        {/* New Project button */}
+        {/* Bottom Section */}
         <div className="db-sidebar-bottom">
-          <button
-            className="db-new-project-btn"
-            onClick={() => setCreateModalOpen(true)}
-          >
-            <Plus size={16} />
-            New Project
-          </button>
-
           <div className="db-sidebar-footer-links">
-            <Link to="/profile" className="db-footer-link" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <Link to="/profile" className="db-footer-link">
               <Settings size={16} /> Settings
             </Link>
-            <button className="db-footer-link db-footer-link--logout" onClick={handleLogout}>
-              <LogOut size={16} /> Logout
+          </div>
+
+          {/* User card at bottom */}
+          <div className="db-user-card" style={{ margin: '16px 0 0 0' }}>
+            <div className="db-user-avatar">
+              {getInitials(user?.name)}
+            </div>
+            <div className="db-user-info">
+              <p className="db-user-name">{user?.name || 'User'}</p>
+              <p className="db-user-role">{user?.role || 'Member'}</p>
+            </div>
+            <button className="db-logout-mini" onClick={handleLogout} title="Logout">
+              <LogOut size={14} />
             </button>
           </div>
         </div>
@@ -105,13 +108,32 @@ const DashboardLayout = ({ children, projects, onProjectCreated }) => {
           MAIN AREA
       ════════════════════════════════ */}
       <div className="db-main">
+        {/* Ambient blobs */}
+        <div className="lp-blob lp-blob-1" aria-hidden />
+        <div className="lp-blob lp-blob-2" aria-hidden />
+        <div className="lp-blob lp-blob-3" aria-hidden />
 
         {/* Top bar */}
         <header className="db-topbar">
-          <button className="db-menu-btn" onClick={() => setSidebarOpen(true)}>
-            <Menu size={20} />
-          </button>
+
+
+          <div className="db-search-wrap">
+            <Search size={18} className="db-search-icon" />
+            <input type="text" placeholder="Search tasks, projects, people..." className="db-search-input" />
+            <span className="db-search-cmd">⌘ K</span>
+          </div>
+
           <div style={{ flex: 1 }} />
+
+          <div className="db-topbar-actions">
+            <button className="db-top-icon-btn" onClick={handleLogout}><LogOut size={18} /></button>
+            <button
+              className="db-new-project-btn-top"
+              onClick={() => setCreateModalOpen(true)}
+            >
+              New Project
+            </button>
+          </div>
         </header>
 
         {/* Page content */}
