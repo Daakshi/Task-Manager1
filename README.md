@@ -10,10 +10,11 @@
 - 📁 **Project Management** – Create projects, invite members by email
 - ✅ **Task Management** – Create, edit, delete tasks with priorities and due dates
 - 🗂️ **Kanban Board** – Visual 3-column board (Todo / In Progress / Done)
-- 🖱️ **Drag and Drop** – HTML5 drag and drop for task status updates
+- 🖱️ **Drag and Drop** – Advanced dnd-kit integration for task status updates
+- 📈 **Activity Timeline** – Real-time tracking of project updates and milestones
 - 👥 **Team Collaboration** – Add members and assign tasks
-- 🌙 **Dark Mode** – Full dark/light theme toggle
-- 📱 **Responsive Design** – Works on desktop, tablet, and mobile
+- 💎 **Premium UI/UX** – High-end glassmorphism aesthetic with smooth transitions
+- 📱 **Fully Responsive** – Optimized for Mobile, Tablet, and Desktop (Mobile-First)
 - 🔔 **Toast Notifications** – Real-time feedback on all actions
 - 🛡️ **Protected Routes** – Frontend and backend route protection
 

@@ -115,7 +115,14 @@ const DashboardLayout = ({ children, projects, onProjectCreated }) => {
 
         {/* Top bar */}
         <header className="db-topbar">
-
+          {/* Mobile menu toggle */}
+          <button 
+            className="db-mobile-nav-btn" 
+            onClick={() => setSidebarOpen(true)}
+            aria-label="Open menu"
+          >
+            <Menu size={20} />
+          </button>
 
           <div className="db-search-wrap">
             <Search size={18} className="db-search-icon" />
@@ -126,12 +133,13 @@ const DashboardLayout = ({ children, projects, onProjectCreated }) => {
           <div style={{ flex: 1 }} />
 
           <div className="db-topbar-actions">
-            <button className="db-top-icon-btn" onClick={handleLogout}><LogOut size={18} /></button>
+            <button className="db-top-icon-btn" onClick={handleLogout} title="Logout"><LogOut size={18} /></button>
             <button
               className="db-new-project-btn-top"
               onClick={() => setCreateModalOpen(true)}
             >
-              New Project
+              <Plus size={18} className="db-mobile-hide" />
+              <span>New Project</span>
             </button>
           </div>
         </header>

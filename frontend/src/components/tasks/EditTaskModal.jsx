@@ -8,7 +8,7 @@ import Spinner from '../common/Spinner';
 import { Save } from 'lucide-react';
 
 const PRIORITIES = ['Low', 'Medium', 'High'];
-const STATUSES = ['Todo', 'In Progress', 'Review', 'Completed'];
+const STATUSES = ['Todo', 'In Progress', 'Done'];
 
 const EditTaskModal = ({ isOpen, onClose, task, members, onUpdated }) => {
   const [loading, setLoading] = useState(false);

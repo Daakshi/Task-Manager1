@@ -36,8 +36,7 @@ import Spinner from '../common/Spinner';
 const STATUS_CONFIG = {
   'Todo':        { label: 'To Do',       icon: ListTodo,    accent: '#72E1ED', dot: '#72E1ED', bg: 'rgba(114, 225, 237, 0.08)' },
   'In Progress': { label: 'In Progress',  icon: Clock,       accent: '#fbbf24', dot: '#f59e0b', bg: 'rgba(245, 158, 11, 0.08)' },
-  'Review':      { label: 'Review',       icon: Eye,         accent: '#a855f7', dot: '#a855f7', bg: 'rgba(168, 85, 247, 0.08)' },
-  'Completed':   { label: 'Completed',    icon: CheckCircle2,accent: '#BEF264', dot: '#BEF264', bg: 'rgba(190, 242, 100, 0.08)' },
+  'Done':        { label: 'Done',        icon: CheckCircle2,accent: '#BEF264', dot: '#BEF264', bg: 'rgba(190, 242, 100, 0.08)' },
 };
 
 const PRIORITY_STYLES = {

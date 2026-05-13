@@ -66,6 +66,8 @@ const FeatureCard = ({ icon: Icon, title, desc, linkLabel, color }) => {
    Main Page
 ───────────────────────────────────────────── */
 const LandingPage = () => {
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
+
   return (
     <div className="lp-root">
 
@@ -80,7 +82,7 @@ const LandingPage = () => {
       {/* ════════════════════════════════════
           NAVIGATION
       ════════════════════════════════════ */}
-      <header className="lp-header">
+      <header className={`lp-header ${isMobileMenuOpen ? 'lp-header--open' : ''}`}>
         <div className="lp-nav-inner">
           {/* Logo */}
           <div className="lp-logo" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -93,12 +95,27 @@ const LandingPage = () => {
             TaskFlow
           </div>
 
-          {/* Nav links removed */}
-
-          {/* Auth buttons */}
-          <div className="lp-nav-actions">
+          {/* Desktop Nav Actions */}
+          <div className="lp-nav-actions lp-desktop-only">
             <Link to="/login" className="lp-btn-ghost">Login</Link>
             <Link to="/signup" className="lp-btn-primary">Get Started</Link>
+          </div>
+
+          {/* Mobile Menu Toggle */}
+          <button 
+            className="lp-mobile-menu-btn"
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            aria-label="Toggle menu"
+          >
+            {isMobileMenuOpen ? <Sparkles size={24} /> : <Layers size={24} />}
+          </button>
+        </div>
+
+        {/* Mobile Menu Overlay */}
+        <div className={`lp-mobile-menu ${isMobileMenuOpen ? 'lp-mobile-menu--active' : ''}`}>
+          <div className="lp-mobile-nav">
+            <Link to="/login" className="lp-mobile-nav-link" onClick={() => setIsMobileMenuOpen(false)}>Login</Link>
+            <Link to="/signup" className="lp-mobile-nav-link lp-mobile-nav-link--primary" onClick={() => setIsMobileMenuOpen(false)}>Get Started</Link>
           </div>
         </div>
       </header>

@@ -196,10 +196,10 @@ const DashboardPage = () => {
       <div className="db-page">
 
         {/* ── Greeting ── */}
-        <div className="db-greeting" style={{ marginBottom: '32px' }}>
+        <div className="db-greeting">
           <div>
-            <h1 className="db-greeting-h1" style={{ fontSize: '2.4rem' }}>{greeting}, {firstName}.</h1>
-            <p className="db-greeting-sub" style={{ fontSize: '1.1rem', opacity: 0.6 }}>
+            <h1 className="db-greeting-h1">{greeting}, {firstName}.</h1>
+            <p className="db-greeting-sub">
               You have {tasks.filter(t => t.status !== 'Done').length} pending tasks for today.
             </p>
           </div>
@@ -229,19 +229,14 @@ const DashboardPage = () => {
         </section>
 
         {/* ── Grid Row 2: Activity & Tasks ── */}
-        <div className="db-dashboard-grid" style={{ 
-          display: 'grid', 
-          gridTemplateColumns: '1.2fr 0.8fr', 
-          gap: '24px', 
-          marginTop: '40px' 
-        }}>
+        <div className="db-dashboard-grid">
           
           {/* Left: Recent Activity */}
           <section className="db-section" id="activity" style={{ margin: 0 }}>
             <div className="db-section-header">
               <h2 className="db-section-title">Activity Timeline</h2>
             </div>
-            <div className="db-card-glass" style={{ padding: '24px', borderRadius: '24px', minHeight: '400px' }}>
+            <div className="db-card-glass db-activity-card-inner">
               <ActivityTimeline activities={activities} />
             </div>
           </section>
@@ -263,16 +258,13 @@ const DashboardPage = () => {
                 <p style={{ fontSize: 14, color: '#71717a' }}>No urgent tasks.</p>
               </div>
             ) : (
-              <div className="db-tasks-panel" style={{ padding: 0, background: 'rgba(255,255,255,0.02)', borderRadius: '24px' }}>
+              <div className="db-tasks-panel">
                 <div className="db-task-list">
                   {tasks.filter(t => t.status !== 'Done').slice(0, 4).map((task) => (
-                    <div key={task._id} className="db-task-row" style={{ padding: '16px 24px' }}>
+                    <div key={task._id} className="db-task-row">
                       <button 
                         className="db-task-check" 
                         onClick={() => handleToggleTask(task._id)}
-                        style={{ cursor: 'pointer', background: 'none', border: '2px solid rgba(255,255,255,0.2)', transition: 'all 0.2s' }}
-                        onMouseEnter={e => e.currentTarget.style.borderColor = '#BEF264'}
-                        onMouseLeave={e => e.currentTarget.style.borderColor = 'rgba(255,255,255,0.2)'}
                       />
                       <div className="db-task-info">
                         <p className="db-task-title">{task.title}</p>
