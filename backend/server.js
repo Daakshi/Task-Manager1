@@ -16,18 +16,30 @@ const app = express();
 const allowedOrigins = [
   process.env.CLIENT_URL,
   'https://taskflow-roan-delta.vercel.app',
+  'https://www.taskflow-roan-delta.vercel.app',
   'http://localhost:5173',
-  'http://localhost:3000'
+  'http://localhost:3000',
+  'http://127.0.0.1:5173',
+  'http://127.0.0.1:3000'
 ].filter(Boolean);
 
 app.use(cors({
   origin: (origin, callback) => {
     // Allow requests with no origin (like mobile apps or curl requests)
     if (!origin) return callback(null, true);
-    if (allowedOrigins.indexOf(origin) === -1) {
+    
+    // Check if origin is in allowedOrigins or is a local IP (for mobile testing)
+    const isAllowed = allowedOrigins.includes(origin) || 
+                      origin.includes('192.168.') || 
+                      origin.includes('10.') || 
+                      origin.includes('172.');
+                      
+    if (isAllowed) {
+      return callback(null, true);
+    } else {
+      console.warn(`CORS blocked for origin: ${origin}`);
       return callback(new Error('The CORS policy for this site does not allow access from the specified Origin.'), false);
     }
-    return callback(null, true);
   },
   credentials: true,
 }));
@@ -46,7 +58,8 @@ app.get('/api/health', (req, res) => {
 
 // 404 handler
 app.use((req, res) => {
-  res.status(404).json({ message: 'Route not found' });
+  console.log(`404 Not Found: ${req.method} ${req.originalUrl}`);
+  res.status(404).json({ message: `Route not found: ${req.method} ${req.originalUrl}` });
 });
 
 // Global error handler
