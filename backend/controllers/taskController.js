@@ -132,4 +132,20 @@ const deleteTask = async (req, res) => {
   }
 };
 
-module.exports = { getTasksByProject, createTask, updateTask, deleteTask };
+// @desc    Get all tasks assigned to current user
+// @route   GET /api/tasks/me
+// @access  Private
+const getMyTasks = async (req, res) => {
+  try {
+    const tasks = await Task.find({ assignedTo: req.user._id })
+      .populate('project', 'name')
+      .sort({ dueDate: 1 }); // Ascending order to show due soon first
+
+    res.json(tasks);
+  } catch (error) {
+    console.error('Get my tasks error:', error);
+    res.status(500).json({ message: 'Server error fetching user tasks' });
+  }
+};
+
+module.exports = { getTasksByProject, createTask, updateTask, deleteTask, getMyTasks };

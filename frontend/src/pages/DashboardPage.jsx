@@ -1,21 +1,120 @@
 import { useState, useEffect } from 'react';
+import '../dashboard.css';
 import { Link } from 'react-router-dom';
-import { projectService } from '../services';
+import { projectService, taskService } from '../services';
 import { getErrorMessage } from '../utils/helpers';
 import DashboardLayout from '../layouts/DashboardLayout';
-import CreateProjectModal from '../components/projects/CreateProjectModal';
 import Spinner from '../components/common/Spinner';
 import toast from 'react-hot-toast';
-import { FolderOpen, Plus, Users, ChevronRight, LayoutGrid } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import {
+  MoreHorizontal, Calendar, Users, Filter,
+  History, FolderOpen, Plus,
+} from 'lucide-react';
 
+/* ── helpers ── */
+const CATEGORY_COLORS = {
+  Development: { bg: '#ede9fe', text: '#7c3aed', border: '#7c3aed' },
+  Marketing:   { bg: '#fce7f3', text: '#be185d', border: '#ec4899' },
+  Research:    { bg: '#d1fae5', text: '#065f46', border: '#14b8a6' },
+  Design:      { bg: '#fef3c7', text: '#92400e', border: '#f59e0b' },
+  default:     { bg: '#e0e7ff', text: '#3730a3', border: '#635BFF' },
+};
+
+const PRIORITY_COLORS = {
+  High:   { background: '#fee2e2', color: '#dc2626' },
+  Medium: { background: '#fef3c7', color: '#b45309' },
+  Low:    { background: '#d1fae5', color: '#065f46' },
+  default:{ background: '#e0f2fe', color: '#0284c7' },
+};
+
+const PROGRESS_COLORS = [
+  'linear-gradient(90deg,#635BFF,#a855f7)',
+  'linear-gradient(90deg,#ec4899,#f97316)',
+  'linear-gradient(90deg,#14b8a6,#06b6d4)',
+];
+
+
+
+/* ── Project Card ── */
+const ProjectCard = ({ project, index }) => {
+  const cats = ['Development','Marketing','Research','Design'];
+  const cat  = cats[index % cats.length];
+  const c    = CATEGORY_COLORS[cat] || CATEGORY_COLORS.default;
+  const prog = [75, 32, 90][index % 3];
+
+  return (
+    <Link to={`/projects/${project._id}`} className="db-project-card" style={{ '--accent': c.border }}>
+      <div className="db-project-card-top">
+        <span className="db-project-badge" style={{ background: c.bg, color: c.text }}>{cat}</span>
+        <button className="db-project-menu" onClick={e => e.preventDefault()}>
+          <MoreHorizontal size={16} />
+        </button>
+      </div>
+
+      <h3 className="db-project-title">{project.name}</h3>
+      <p className="db-project-desc">
+        {project.description || 'No description provided for this project yet.'}
+      </p>
+
+      <div className="db-project-progress">
+        <div className="db-progress-label">
+          <span>Progress</span>
+          <span>{prog}%</span>
+        </div>
+        <div className="db-progress-track">
+          <div
+            className="db-progress-fill"
+            style={{ width: `${prog}%`, background: PROGRESS_COLORS[index % 3] }}
+          />
+        </div>
+      </div>
+
+      <div className="db-project-footer">
+        <div className="db-member-avatars">
+          {project.members.slice(0, 3).map((m, i) => (
+            <div key={i} className="db-member-avatar" style={{ zIndex: 10 - i }}>
+              {(m.name || m.email || 'U')[0].toUpperCase()}
+            </div>
+          ))}
+          {project.members.length > 3 && (
+            <div className="db-member-avatar db-member-avatar--more">
+              +{project.members.length - 3}
+            </div>
+          )}
+        </div>
+        <div className="db-project-date">
+          <Calendar size={12} />
+          <span>Oct 24</span>
+        </div>
+      </div>
+    </Link>
+  );
+};
+
+/* ── Empty state ── */
+const EmptyProjects = () => (
+  <div className="db-empty">
+    <div className="db-empty-icon"><FolderOpen size={28} /></div>
+    <h3>No projects yet</h3>
+    <p>Create your first project to start organising tasks with your team.</p>
+  </div>
+);
+
+/* ══════════════════════════════════════
+   DASHBOARD PAGE
+══════════════════════════════════════ */
 const DashboardPage = () => {
   const { user } = useAuth();
   const [projects, setProjects] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [tasks, setTasks]       = useState([]);
+  const [loading, setLoading]   = useState(true);
+  const [tasksLoading, setTasksLoading] = useState(true);
+  const [checked, setChecked]   = useState({});
 
-  useEffect(() => {
-    fetchProjects();
+  useEffect(() => { 
+    fetchProjects(); 
+    fetchTasks();
   }, []);
 
   const fetchProjects = async () => {
@@ -29,127 +128,112 @@ const DashboardPage = () => {
     }
   };
 
-  const handleProjectCreated = (project) => {
-    setProjects((prev) => [project, ...prev]);
+  const fetchTasks = async () => {
+    try {
+      const { data } = await taskService.getMyTasks();
+      setTasks(data);
+    } catch (err) {
+      console.error('Failed to fetch user tasks', err);
+    } finally {
+      setTasksLoading(false);
+    }
   };
+
+  const handleProjectCreated = (p) => setProjects(prev => [p, ...prev]);
+
+  const firstName = user?.name?.split(' ')[0] || 'there';
+  const hour = new Date().getHours();
+  const greeting = hour < 12 ? 'Morning' : hour < 17 ? 'Afternoon' : 'Evening';
 
   return (
     <DashboardLayout projects={projects} onProjectCreated={handleProjectCreated}>
-      <div className="p-6 max-w-7xl mx-auto">
-        {/* Welcome */}
-        <div className="mb-8 pl-2">
-          <h1 className="text-3xl font-extrabold text-slate-900 mb-2 tracking-tight">
-            Good to see you, {user?.name?.split(' ')[0]} 👋
-          </h1>
-          <p className="text-slate-500 font-medium">
-            {projects.length > 0
-              ? `You have ${projects.length} active project${projects.length !== 1 ? 's' : ''}`
-              : 'Create your first project to get started'}
-          </p>
-        </div>
+      <div className="db-page">
 
-        {/* Stats */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 mb-10">
-          <div className="glass-panel rounded-3xl p-6 flex items-center gap-5 transition-transform hover:-translate-y-1">
-            <div className="w-14 h-14 bg-violet-100 rounded-2xl flex items-center justify-center shadow-sm">
-              <LayoutGrid size={24} className="text-violet-600" />
-            </div>
-            <div>
-              <p className="text-3xl font-bold text-slate-900">{projects.length}</p>
-              <p className="text-slate-500 font-medium text-sm">Total Projects</p>
-            </div>
-          </div>
-          <div className="glass-panel rounded-3xl p-6 flex items-center gap-5 transition-transform hover:-translate-y-1">
-            <div className="w-14 h-14 bg-emerald-100 rounded-2xl flex items-center justify-center shadow-sm">
-              <FolderOpen size={24} className="text-emerald-600" />
-            </div>
-            <div>
-              <p className="text-3xl font-bold text-slate-900">
-                {projects.filter((p) => p.owner._id === user?._id).length}
-              </p>
-              <p className="text-slate-500 font-medium text-sm">Owned by You</p>
-            </div>
-          </div>
-          <div className="glass-panel rounded-3xl p-6 flex items-center gap-5 transition-transform hover:-translate-y-1">
-            <div className="w-14 h-14 bg-blue-100 rounded-2xl flex items-center justify-center shadow-sm">
-              <Users size={24} className="text-blue-600" />
-            </div>
-            <div>
-              <p className="text-3xl font-bold text-slate-900">
-                {projects.filter((p) => p.owner._id !== user?._id).length}
-              </p>
-              <p className="text-slate-500 font-medium text-sm">Collaborating</p>
-            </div>
+        {/* ── Greeting ── */}
+        <div className="db-greeting">
+          <div>
+            <h1 className="db-greeting-h1">{greeting}, {firstName}.</h1>
+            <p className="db-greeting-sub">Here is what's happening with your projects today.</p>
           </div>
         </div>
 
-        {/* Projects grid */}
-        <div>
-          <div className="flex items-center justify-between mb-6 pl-2">
-            <h2 className="text-xl font-bold text-slate-800">Your Projects</h2>
+        {/* ── Active Projects ── */}
+        <section className="db-section">
+          <div className="db-section-header">
+            <h2 className="db-section-title">Active Projects</h2>
+            <Link to="/projects" className="db-view-all">View All</Link>
           </div>
 
           {loading ? (
-            <div className="flex items-center justify-center py-20">
-              <Spinner size="lg" />
-            </div>
+            <div className="db-loading"><Spinner size="lg" /></div>
           ) : projects.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-20 text-center glass-panel rounded-3xl">
-              <div className="w-20 h-20 bg-slate-100 border-2 border-dashed border-slate-300 rounded-3xl flex items-center justify-center mb-5 shadow-sm">
-                <FolderOpen size={30} className="text-slate-400" />
-              </div>
-              <h3 className="text-slate-800 font-bold text-xl mb-2">No projects yet</h3>
-              <p className="text-slate-500 text-sm mb-6 max-w-sm">
-                Create your first project to start organizing tasks and collaborating with your team.
-              </p>
-            </div>
+            <EmptyProjects />
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-              {projects.map((project) => (
-                <Link
-                  key={project._id}
-                  to={`/projects/${project._id}`}
-                  className="group glass-panel hover:bg-white/95 rounded-3xl p-6 transition-all hover:shadow-xl hover:shadow-slate-200/50 hover:-translate-y-1.5"
-                >
-                  <div className="flex items-start justify-between mb-5">
-                    <div className="w-12 h-12 bg-indigo-100 rounded-2xl flex items-center justify-center flex-shrink-0 group-hover:bg-indigo-200 transition-colors shadow-sm">
-                      <FolderOpen size={20} className="text-indigo-600" />
-                    </div>
-                    <div className="w-8 h-8 rounded-full bg-slate-50 group-hover:bg-slate-100 flex items-center justify-center transition-colors">
-                      <ChevronRight
-                        size={16}
-                        className="text-slate-400 group-hover:text-indigo-600 group-hover:translate-x-0.5 transition-all"
-                      />
-                    </div>
-                  </div>
-
-                  <h3 className="text-slate-900 font-bold text-lg mb-2 group-hover:text-indigo-600 transition-colors">
-                    {project.name}
-                  </h3>
-                  {project.description && (
-                    <p className="text-slate-500 text-sm line-clamp-2 mb-5 leading-relaxed">{project.description}</p>
-                  )}
-
-                  <div className="flex items-center justify-between mt-auto pt-4 border-t border-slate-100">
-                    <div className="flex items-center gap-1.5 text-slate-500 text-xs font-medium">
-                      <Users size={14} />
-                      <span>{project.members.length} member{project.members.length !== 1 ? 's' : ''}</span>
-                    </div>
-                    {project.owner._id === user?._id ? (
-                      <span className="text-xs font-bold bg-indigo-50 text-indigo-600 px-3 py-1 rounded-full border border-indigo-100">
-                        Owner
-                      </span>
-                    ) : (
-                      <span className="text-xs font-bold bg-slate-100 text-slate-600 px-3 py-1 rounded-full border border-slate-200">
-                        Member
-                      </span>
-                    )}
-                  </div>
-                </Link>
+            <div className="db-projects-grid">
+              {projects.slice(0, 3).map((p, i) => (
+                <ProjectCard key={p._id} project={p} index={i} />
               ))}
             </div>
           )}
-        </div>
+        </section>
+
+        {/* ── Tasks Due Soon ── */}
+        <section className="db-section" style={{ marginTop: 8 }}>
+          <div className="db-section-header">
+            <h2 className="db-section-title">Tasks Due Soon</h2>
+            <button className="db-icon-action"><Filter size={16}/></button>
+          </div>
+
+          {tasksLoading ? (
+            <div className="db-loading"><Spinner size="md" /></div>
+          ) : tasks.length === 0 ? (
+            <div className="db-empty">
+              <p style={{ fontSize: 14, color: '#64748b', fontWeight: 500 }}>No tasks assigned to you yet.</p>
+            </div>
+          ) : (
+            <div className="db-tasks-panel" style={{ padding: 0 }}>
+              <div className="db-task-list">
+                {tasks.slice(0, 4).map((task) => (
+                  <div key={task._id} className="db-task-row" style={{ padding: '14px 20px' }}>
+                    <div className="db-task-check" />
+                    <div className="db-task-info">
+                      <p className="db-task-title">{task.title}</p>
+                      <p className="db-task-meta">
+                        {task.project?.name || 'No Project'} •{' '}
+                        {task.dueDate
+                          ? `Due ${new Date(task.dueDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`
+                          : 'No Date'}
+                      </p>
+                    </div>
+                    <span
+                      className="db-priority-badge"
+                      style={{
+                        ...(PRIORITY_COLORS[task.priority] || PRIORITY_COLORS.default),
+                      }}
+                    >
+                      {task.priority || 'Medium'}
+                    </span>
+                  </div>
+                ))}
+              </div>
+              {tasks.length > 4 && (
+                <button className="db-show-more">
+                  Show {tasks.length - 4} more tasks
+                </button>
+              )}
+            </div>
+          )}
+        </section>
+
+        <footer className="db-footer">
+          <span className="db-footer-logo">TaskFlow</span>
+          <span className="db-footer-copy">© 2024 TaskFlow Inc. All rights reserved.</span>
+          <div className="db-footer-links">
+            <a href="#">Privacy Policy</a>
+            <a href="#">Terms of Service</a>
+          </div>
+        </footer>
+
       </div>
     </DashboardLayout>
   );

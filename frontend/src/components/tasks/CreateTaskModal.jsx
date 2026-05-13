@@ -1,4 +1,4 @@
-import { useForm, Controller } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { useState } from 'react';
 import { taskService } from '../../services';
 import { getErrorMessage } from '../../utils/helpers';
@@ -6,13 +6,14 @@ import toast from 'react-hot-toast';
 import Modal from '../common/Modal';
 import Spinner from '../common/Spinner';
 import { Plus } from 'lucide-react';
+import '../../dashboard.css';
 
 const PRIORITIES = ['Low', 'Medium', 'High'];
 const STATUSES = ['Todo', 'In Progress', 'Done'];
 
 const CreateTaskModal = ({ isOpen, onClose, projectId, members, onCreated, defaultStatus }) => {
   const [loading, setLoading] = useState(false);
-  const { register, handleSubmit, reset, control, formState: { errors } } = useForm({
+  const { register, handleSubmit, reset, formState: { errors } } = useForm({
     defaultValues: {
       priority: 'Medium',
       status: defaultStatus || 'Todo',
@@ -42,11 +43,12 @@ const CreateTaskModal = ({ isOpen, onClose, projectId, members, onCreated, defau
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Create New Task" size="lg">
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+      <form onSubmit={handleSubmit(onSubmit)}>
+        
         {/* Title */}
-        <div>
-          <label className="block text-sm font-medium text-gray-300 mb-1.5">
-            Title <span className="text-red-400">*</span>
+        <div className="db-form-group">
+          <label className="db-form-label">
+            Title <span className="db-form-label-req">*</span>
           </label>
           <input
             {...register('title', {
@@ -54,41 +56,34 @@ const CreateTaskModal = ({ isOpen, onClose, projectId, members, onCreated, defau
               minLength: { value: 2, message: 'At least 2 characters' },
             })}
             placeholder="Task title..."
-            className="w-full bg-gray-800 border border-gray-700 text-white placeholder-gray-600 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent"
+            className="db-form-input"
           />
-          {errors.title && <p className="text-red-400 text-xs mt-1">{errors.title.message}</p>}
+          {errors.title && <p className="db-form-error">{errors.title.message}</p>}
         </div>
 
         {/* Description */}
-        <div>
-          <label className="block text-sm font-medium text-gray-300 mb-1.5">Description</label>
+        <div className="db-form-group">
+          <label className="db-form-label">Description</label>
           <textarea
             {...register('description')}
             placeholder="Add a description..."
-            rows={3}
-            className="w-full bg-gray-800 border border-gray-700 text-white placeholder-gray-600 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent resize-none"
+            className="db-form-textarea"
           />
         </div>
 
         {/* Priority & Status row */}
-        <div className="grid grid-cols-2 gap-3">
+        <div className="db-form-row">
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-1.5">Priority</label>
-            <select
-              {...register('priority')}
-              className="w-full bg-gray-800 border border-gray-700 text-white rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent"
-            >
+            <label className="db-form-label">Priority</label>
+            <select {...register('priority')} className="db-form-select">
               {PRIORITIES.map((p) => (
                 <option key={p} value={p}>{p}</option>
               ))}
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-1.5">Status</label>
-            <select
-              {...register('status')}
-              className="w-full bg-gray-800 border border-gray-700 text-white rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent"
-            >
+            <label className="db-form-label">Status</label>
+            <select {...register('status')} className="db-form-select">
               {STATUSES.map((s) => (
                 <option key={s} value={s}>{s}</option>
               ))}
@@ -97,13 +92,10 @@ const CreateTaskModal = ({ isOpen, onClose, projectId, members, onCreated, defau
         </div>
 
         {/* Assignee & Due Date row */}
-        <div className="grid grid-cols-2 gap-3">
+        <div className="db-form-row">
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-1.5">Assign To</label>
-            <select
-              {...register('assignedTo')}
-              className="w-full bg-gray-800 border border-gray-700 text-white rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent"
-            >
+            <label className="db-form-label">Assign To</label>
+            <select {...register('assignedTo')} className="db-form-select">
               <option value="">Unassigned</option>
               {members?.map((m) => (
                 <option key={m._id} value={m._id}>{m.name}</option>
@@ -111,33 +103,26 @@ const CreateTaskModal = ({ isOpen, onClose, projectId, members, onCreated, defau
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-1.5">Due Date</label>
+            <label className="db-form-label">Due Date</label>
             <input
               {...register('dueDate')}
               type="date"
-              className="w-full bg-gray-800 border border-gray-700 text-white rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent [color-scheme:dark]"
+              className="db-form-input"
             />
           </div>
         </div>
 
         {/* Actions */}
-        <div className="flex gap-3 pt-2">
-          <button
-            type="button"
-            onClick={onClose}
-            className="flex-1 bg-gray-800 hover:bg-gray-700 text-gray-300 font-medium py-2.5 rounded-xl text-sm transition-colors"
-          >
+        <div className="db-modal-actions">
+          <button type="button" onClick={onClose} className="db-btn-cancel">
             Cancel
           </button>
-          <button
-            type="submit"
-            disabled={loading}
-            className="flex-1 bg-violet-600 hover:bg-violet-500 disabled:opacity-60 text-white font-medium py-2.5 rounded-xl text-sm flex items-center justify-center gap-2 transition-all"
-          >
+          <button type="submit" disabled={loading} className="db-btn-submit">
             {loading ? <Spinner size="sm" /> : <Plus size={16} />}
             {loading ? 'Creating...' : 'Create Task'}
           </button>
         </div>
+
       </form>
     </Modal>
   );

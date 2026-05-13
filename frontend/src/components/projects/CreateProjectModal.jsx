@@ -6,6 +6,7 @@ import toast from 'react-hot-toast';
 import Modal from '../common/Modal';
 import Spinner from '../common/Spinner';
 import { FolderPlus } from 'lucide-react';
+import '../../dashboard.css';
 
 const CreateProjectModal = ({ isOpen, onClose, onCreated }) => {
   const [loading, setLoading] = useState(false);
@@ -27,11 +28,12 @@ const CreateProjectModal = ({ isOpen, onClose, onCreated }) => {
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Create New Project">
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-        <div>
-          <label className="block text-sm font-medium text-gray-300 mb-1.5">
-            Project Name <span className="text-red-400">*</span>
+    <Modal isOpen={isOpen} onClose={onClose} title="Create New Project" size="md">
+      <form onSubmit={handleSubmit(onSubmit)}>
+        
+        <div className="db-form-group">
+          <label className="db-form-label">
+            Project Name <span className="db-form-label-req">*</span>
           </label>
           <input
             {...register('name', {
@@ -39,38 +41,30 @@ const CreateProjectModal = ({ isOpen, onClose, onCreated }) => {
               minLength: { value: 2, message: 'At least 2 characters' },
             })}
             placeholder="e.g. Marketing Campaign"
-            className="w-full bg-gray-800 border border-gray-700 text-white placeholder-gray-600 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent"
+            className="db-form-input"
           />
-          {errors.name && <p className="text-red-400 text-xs mt-1">{errors.name.message}</p>}
+          {errors.name && <p className="db-form-error">{errors.name.message}</p>}
         </div>
 
-        <div>
-          <label className="block text-sm font-medium text-gray-300 mb-1.5">Description</label>
+        <div className="db-form-group">
+          <label className="db-form-label">Description</label>
           <textarea
             {...register('description')}
             placeholder="Describe your project..."
-            rows={3}
-            className="w-full bg-gray-800 border border-gray-700 text-white placeholder-gray-600 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent resize-none"
+            className="db-form-textarea"
           />
         </div>
 
-        <div className="flex gap-3 pt-2">
-          <button
-            type="button"
-            onClick={onClose}
-            className="flex-1 bg-gray-800 hover:bg-gray-700 text-gray-300 font-medium py-2.5 rounded-xl text-sm transition-colors"
-          >
+        <div className="db-modal-actions">
+          <button type="button" onClick={onClose} className="db-btn-cancel">
             Cancel
           </button>
-          <button
-            type="submit"
-            disabled={loading}
-            className="flex-1 bg-violet-600 hover:bg-violet-500 disabled:opacity-60 text-white font-medium py-2.5 rounded-xl text-sm flex items-center justify-center gap-2 transition-all"
-          >
+          <button type="submit" disabled={loading} className="db-btn-submit">
             {loading ? <Spinner size="sm" /> : <FolderPlus size={16} />}
             {loading ? 'Creating...' : 'Create Project'}
           </button>
         </div>
+        
       </form>
     </Modal>
   );

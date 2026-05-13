@@ -1,0 +1,174 @@
+{
+  "info": {
+    "name": "TaskFlow API",
+    "description": "API documentation for the TaskFlow SaaS platform.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Sign Up",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"John Doe\",\n  \"email\": \"john@example.com\",\n  \"password\": \"password123\"\n}"
+            },
+            "url": { "raw": "{{baseURL}}/api/auth/signup", "host": ["{{baseURL}}"], "path": ["api", "auth", "signup"] }
+          }
+        },
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"john@example.com\",\n  \"password\": \"password123\"\n}"
+            },
+            "url": { "raw": "{{baseURL}}/api/auth/login", "host": ["{{baseURL}}"], "path": ["api", "auth", "login"] }
+          }
+        },
+        {
+          "name": "Get Current User",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": { "raw": "{{baseURL}}/api/auth/me", "host": ["{{baseURL}}"], "path": ["api", "auth", "me"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Projects",
+      "item": [
+        {
+          "name": "Get All Projects",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": { "raw": "{{baseURL}}/api/projects", "host": ["{{baseURL}}"], "path": ["api", "projects"] }
+          }
+        },
+        {
+          "name": "Create Project",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"New Project\",\n  \"description\": \"A great new project.\"\n}"
+            },
+            "url": { "raw": "{{baseURL}}/api/projects", "host": ["{{baseURL}}"], "path": ["api", "projects"] }
+          }
+        },
+        {
+          "name": "Add Member to Project",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"member@example.com\"\n}"
+            },
+            "url": { "raw": "{{baseURL}}/api/projects/:id/members", "host": ["{{baseURL}}"], "path": ["api", "projects", ":id", "members"], "variable": [ { "key": "id", "value": "PROJECT_ID_HERE" } ] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Tasks",
+      "item": [
+        {
+          "name": "Get Tasks by Project",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": { "raw": "{{baseURL}}/api/tasks/:projectId", "host": ["{{baseURL}}"], "path": ["api", "tasks", ":projectId"], "variable": [ { "key": "projectId", "value": "PROJECT_ID_HERE" } ] }
+          }
+        },
+        {
+          "name": "Get My Tasks",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": { "raw": "{{baseURL}}/api/tasks/me", "host": ["{{baseURL}}"], "path": ["api", "tasks", "me"] }
+          }
+        },
+        {
+          "name": "Create Task",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"New Task\",\n  \"description\": \"Do this task.\",\n  \"priority\": \"High\",\n  \"status\": \"Todo\",\n  \"project\": \"PROJECT_ID_HERE\"\n}"
+            },
+            "url": { "raw": "{{baseURL}}/api/tasks", "host": ["{{baseURL}}"], "path": ["api", "tasks"] }
+          }
+        },
+        {
+          "name": "Update Task",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"Done\"\n}"
+            },
+            "url": { "raw": "{{baseURL}}/api/tasks/:id", "host": ["{{baseURL}}"], "path": ["api", "tasks", ":id"], "variable": [ { "key": "id", "value": "TASK_ID_HERE" } ] }
+          }
+        },
+        {
+          "name": "Delete Task",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": { "raw": "{{baseURL}}/api/tasks/:id", "host": ["{{baseURL}}"], "path": ["api", "tasks", ":id"], "variable": [ { "key": "id", "value": "TASK_ID_HERE" } ] }
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseURL",
+      "value": "http://localhost:5000",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "YOUR_JWT_TOKEN",
+      "type": "string"
+    }
+  ]
+}

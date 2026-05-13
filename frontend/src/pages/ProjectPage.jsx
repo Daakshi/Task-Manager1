@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { projectService, taskService } from '../services';
 import { getErrorMessage } from '../utils/helpers';
 import DashboardLayout from '../layouts/DashboardLayout';
@@ -10,78 +10,45 @@ import AddMemberModal from '../components/projects/AddMemberModal';
 import Spinner from '../components/common/Spinner';
 import toast from 'react-hot-toast';
 import {
-  Plus,
-  UserPlus,
-  ArrowLeft,
-  CheckCircle2,
-  Clock,
-  ListTodo,
-  Users,
+  Plus, UserPlus, CheckCircle2, Clock,
+  ListTodo, Share2, ChevronDown,
 } from 'lucide-react';
+import '../dashboard.css';
 
+/* ── Column config ── */
 const COLUMNS = [
-  {
-    status: 'Todo',
-    label: 'To Do',
-    icon: ListTodo,
-    color: 'text-indigo-600',
-    border: 'border-white/60',
-    bg: 'bg-white/40',
-    dot: 'bg-indigo-500',
-    headerBg: 'bg-indigo-50/50',
-    iconBg: 'bg-indigo-100',
-  },
-  {
-    status: 'In Progress',
-    label: 'In Progress',
-    icon: Clock,
-    color: 'text-amber-600',
-    border: 'border-white/60',
-    bg: 'bg-white/40',
-    dot: 'bg-amber-500',
-    headerBg: 'bg-amber-50/50',
-    iconBg: 'bg-amber-100',
-  },
-  {
-    status: 'Done',
-    label: 'Done',
-    icon: CheckCircle2,
-    color: 'text-emerald-600',
-    border: 'border-white/60',
-    bg: 'bg-white/40',
-    dot: 'bg-emerald-500',
-    headerBg: 'bg-emerald-50/50',
-    iconBg: 'bg-emerald-100',
-  },
+  { status: 'Todo',        label: 'To Do',       icon: ListTodo,    accent: '#635BFF', dotColor: '#635BFF', headerBg: '#f0efff' },
+  { status: 'In Progress', label: 'In Progress',  icon: Clock,       accent: '#f59e0b', dotColor: '#f59e0b', headerBg: '#fffbeb' },
+  { status: 'Done',        label: 'Done',         icon: CheckCircle2,accent: '#14b8a6', dotColor: '#14b8a6', headerBg: '#f0fdfa' },
 ];
+
+const STATUS_OPTS = ['Todo', 'In Progress', 'Done'];
 
 const ProjectPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
 
-  const [project, setProject] = useState(null);
-  const [tasks, setTasks] = useState([]);
-  const [projects, setProjects] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [project, setProject]           = useState(null);
+  const [tasks,   setTasks]             = useState([]);
+  const [projects, setProjects]         = useState([]);
+  const [loading, setLoading]           = useState(true);
+  const [createModalOpen, setCreate]    = useState(false);
+  const [createDefaultStatus, setDefSt] = useState('Todo');
+  const [editTask, setEditTask]         = useState(null);
+  const [memberModalOpen, setMember]    = useState(false);
+  const [projStatus, setProjStatus]     = useState('In Progress');
 
-  const [createModalOpen, setCreateModalOpen] = useState(false);
-  const [createDefaultStatus, setCreateDefaultStatus] = useState('Todo');
-  const [editTask, setEditTask] = useState(null);
-  const [memberModalOpen, setMemberModalOpen] = useState(false);
-
-  useEffect(() => {
-    fetchData();
-  }, [id]);
+  useEffect(() => { fetchData(); }, [id]);
 
   const fetchData = async () => {
     setLoading(true);
     try {
-      const [projectRes, tasksRes, projectsRes] = await Promise.all([
+      const [projRes, tasksRes, projectsRes] = await Promise.all([
         projectService.getById(id),
         taskService.getByProject(id),
         projectService.getAll(),
       ]);
-      setProject(projectRes.data);
+      setProject(projRes.data);
       setTasks(tasksRes.data);
       setProjects(projectsRes.data);
     } catch (err) {
@@ -92,172 +59,217 @@ const ProjectPage = () => {
     }
   };
 
-  const handleTaskCreated = (task) => {
-    setTasks((prev) => [task, ...prev]);
+  const handleTaskCreated  = (t)  => setTasks(p => [t, ...p]);
+  const handleTaskUpdated  = (u)  => setTasks(p => p.map(t => t._id === u._id ? u : t));
+  const handleTaskDeleted  = (id) => setTasks(p => p.filter(t => t._id !== id));
+  const handleStatusChange = (u)  => setTasks(p => p.map(t => t._id === u._id ? u : t));
+
+  const handleDrop = async (e, newStatus) => {
+    e.preventDefault();
+    const taskId = e.dataTransfer.getData('taskId');
+    if (!taskId) return;
+    
+    const task = tasks.find(t => t._id === taskId);
+    if (!task || task.status === newStatus) return;
+
+    // Optimistic UI update
+    setTasks(prev => prev.map(t => t._id === taskId ? { ...t, status: newStatus } : t));
+    
+    try {
+      const { data: updated } = await taskService.update(taskId, { status: newStatus });
+      handleTaskUpdated(updated);
+      toast.success(`Moved to "${newStatus}"`);
+    } catch (err) {
+      toast.error(getErrorMessage(err));
+      // Revert on failure
+      setTasks(prev => prev.map(t => t._id === taskId ? task : t));
+    }
   };
 
-  const handleTaskUpdated = (updated) => {
-    setTasks((prev) => prev.map((t) => (t._id === updated._id ? updated : t)));
-  };
+  const openCreate = (status) => { setDefSt(status); setCreate(true); };
+  const getByStatus = (s) => tasks.filter(t => t.status === s);
 
-  const handleTaskDeleted = (taskId) => {
-    setTasks((prev) => prev.filter((t) => t._id !== taskId));
-  };
+  if (loading) return (
+    <DashboardLayout projects={[]} onProjectCreated={() => {}}>
+      <div className="pp-loading"><Spinner size="lg" /></div>
+    </DashboardLayout>
+  );
 
-  const handleStatusChange = (updated) => {
-    setTasks((prev) => prev.map((t) => (t._id === updated._id ? updated : t)));
-  };
-
-  const handleProjectUpdated = (updated) => {
-    setProject(updated);
-  };
-
-  const openCreateForColumn = (status) => {
-    setCreateDefaultStatus(status);
-    setCreateModalOpen(true);
-  };
-
-  const getTasksByStatus = (status) => tasks.filter((t) => t.status === status);
-
-  if (loading) {
-    return (
-      <DashboardLayout projects={[]} onProjectCreated={() => {}}>
-        <div className="flex items-center justify-center h-full">
-          <Spinner size="lg" />
-        </div>
-      </DashboardLayout>
-    );
-  }
+  const doneCount  = getByStatus('Done').length;
+  const totalCount = tasks.length;
 
   return (
-    <DashboardLayout projects={projects} onProjectCreated={(p) => setProjects((prev) => [p, ...prev])}>
-      <div className="flex flex-col h-full">
-        {/* Project header */}
-        <div className="px-8 py-6 mb-4 glass border border-white/60 rounded-3xl mx-4 flex-shrink-0 shadow-sm">
-          <button
-            onClick={() => navigate('/dashboard')}
-            className="flex items-center gap-1.5 text-slate-500 hover:text-slate-800 text-sm font-medium mb-4 transition-colors bg-white/50 px-3 py-1.5 rounded-full inline-flex w-max"
-          >
-            <ArrowLeft size={16} />
-            Back to Dashboard
-          </button>
+    <DashboardLayout projects={projects} onProjectCreated={p => setProjects(prev => [p, ...prev])}>
+      <div className="pp-root">
 
-          <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6">
-            <div>
-              <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">{project?.name}</h1>
+        {/* ════════════════════════════
+            PROJECT HEADER
+        ════════════════════════════ */}
+        <div className="pp-header">
+          {/* Breadcrumb */}
+          <div className="pp-breadcrumb">
+            <Link to="/dashboard" className="pp-bc-link">PROJECTS</Link>
+            <span className="pp-bc-sep">›</span>
+            <span className="pp-bc-current">{project?.name?.toUpperCase()}</span>
+          </div>
+
+          {/* Title row */}
+          <div className="pp-title-row">
+            <div className="pp-title-block">
+              <h1 className="pp-title">{project?.name}</h1>
               {project?.description && (
-                <p className="text-slate-500 text-base mt-2 font-medium max-w-2xl">{project.description}</p>
+                <p className="pp-desc">{project.description}</p>
               )}
-              <div className="flex items-center gap-3 mt-4 text-slate-600 text-sm font-medium">
-                <div className="flex items-center gap-1.5 bg-white/60 px-3 py-1.5 rounded-full border border-white/80 shadow-sm">
-                  <Users size={16} />
-                  <span>
-                    {project?.members?.length} member{project?.members?.length !== 1 ? 's' : ''}
-                  </span>
-                </div>
-                <div className="flex -space-x-2">
-                  {project?.members?.slice(0, 4).map((m) => (
-                    <div
-                      key={m._id}
-                      className="w-8 h-8 bg-indigo-600 rounded-full flex items-center justify-center text-white text-xs font-bold border-2 border-white shadow-sm"
-                      title={m.name}
-                    >
-                      {m.name[0].toUpperCase()}
-                    </div>
-                  ))}
-                </div>
+            </div>
+            <div className="pp-header-actions">
+              <button className="pp-btn-outline" onClick={() => setMember(true)}>
+                <Share2 size={15} /> Share
+              </button>
+              <button
+                className="pp-btn-primary"
+                onClick={() => setProjStatus(s => s === 'Done' ? 'In Progress' : 'Done')}
+              >
+                <CheckCircle2 size={15} />
+                {projStatus === 'Done' ? 'Completed' : 'Mark Complete'}
+              </button>
+            </div>
+          </div>
+
+          {/* Meta row */}
+          <div className="pp-meta-row">
+            <div className="pp-meta-cell">
+              <span className="pp-meta-label">PRIORITY</span>
+              <div className="pp-meta-val">
+                <span className="pp-dot pp-dot--red" />
+                <span className="pp-priority-text">High</span>
+                <ChevronDown size={13} className="pp-meta-caret" />
               </div>
             </div>
 
-            <div className="flex items-center gap-3 flex-shrink-0">
-              <button
-                onClick={() => setMemberModalOpen(true)}
-                className="flex items-center gap-2 bg-white hover:bg-slate-50 text-slate-700 text-sm font-bold px-5 py-2.5 rounded-full border border-slate-200 shadow-sm transition-all hover:shadow"
-              >
-                <UserPlus size={16} />
-                <span className="hidden sm:inline">Add Member</span>
-              </button>
-              <button
-                onClick={() => { setCreateDefaultStatus('Todo'); setCreateModalOpen(true); }}
-                className="flex items-center gap-2 bg-black hover:bg-slate-800 text-white text-sm font-bold px-5 py-2.5 rounded-full shadow-md transition-all hover:scale-105"
-              >
-                <Plus size={16} />
-                <span>New Task</span>
-              </button>
+            <div className="pp-meta-divider" />
+
+            <div className="pp-meta-cell">
+              <span className="pp-meta-label">DUE DATE</span>
+              <div className="pp-meta-val">
+                <span className="pp-meta-icon">📅</span>
+                <span>Oct 24, 2024</span>
+              </div>
+            </div>
+
+            <div className="pp-meta-divider" />
+
+            <div className="pp-meta-cell">
+              <span className="pp-meta-label">ASSIGNEE</span>
+              <div className="pp-meta-val pp-assignees">
+                {project?.members?.slice(0, 3).map((m, i) => (
+                  <div key={m._id} className="pp-assignee-avatar" style={{ zIndex: 10 - i }}
+                    title={m.name}>
+                    {(m.name || 'U')[0].toUpperCase()}
+                  </div>
+                ))}
+                <span className="pp-assignee-name">
+                  {project?.members?.[0]?.name || 'Unassigned'}
+                </span>
+              </div>
+            </div>
+
+            <div className="pp-meta-divider" />
+
+            <div className="pp-meta-cell">
+              <span className="pp-meta-label">STATUS</span>
+              <div className="pp-meta-val">
+                <span className="pp-status-badge">{projStatus}</span>
+                <ChevronDown size={13} className="pp-meta-caret" />
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Kanban board */}
-        <div className="flex-1 overflow-x-auto p-4 pb-8">
-          <div className="flex gap-6 min-w-max h-full px-2">
-            {COLUMNS.map(({ status, label, icon: Icon, color, border, bg, dot, headerBg, iconBg }) => {
-              const colTasks = getTasksByStatus(status);
-              return (
-                <div key={status} className={`w-80 flex flex-col gap-4 glass-panel rounded-[2rem] p-4 ${border}`}>
-                  {/* Column header */}
-                  <div className={`flex items-center justify-between px-4 py-3.5 rounded-2xl ${headerBg} border border-white/60 shadow-sm`}>
-                    <div className="flex items-center gap-3">
-                      <div className={`w-8 h-8 rounded-xl ${iconBg} flex items-center justify-center shadow-sm`}>
-                        <Icon size={16} className={color} />
-                      </div>
-                      <span className={`text-base font-bold ${color}`}>{label}</span>
-                      <span className={`text-xs font-bold px-2 py-1 rounded-full bg-white shadow-sm ${color}`}>
-                        {colTasks.length}
-                      </span>
-                    </div>
-                    <button
-                      onClick={() => openCreateForColumn(status)}
-                      className={`w-8 h-8 rounded-xl bg-white hover:bg-slate-50 shadow-sm flex items-center justify-center transition-all hover:scale-105`}
-                      title={`Add task to ${label}`}
-                    >
-                      <Plus size={16} className={color} />
-                    </button>
+        {/* ════════════════════════════
+            KANBAN BOARD
+        ════════════════════════════ */}
+        <div className="pp-board">
+          {COLUMNS.map(({ status, label, icon: Icon, accent, dotColor, headerBg }) => {
+            const colTasks = getByStatus(status);
+            return (
+              <div key={status} className="pp-column">
+                {/* Column header */}
+                <div 
+                  className="pp-col-header" 
+                  style={{ background: headerBg }}
+                >
+                  <div className="pp-col-header-left">
+                    <span className="pp-col-dot" style={{ background: dotColor }} />
+                    <span className="pp-col-label" style={{ color: accent }}>{label}</span>
+                    <span className="pp-col-count" style={{ color: accent, background: '#fff' }}>
+                      {colTasks.length}
+                    </span>
                   </div>
-
-                  {/* Tasks */}
-                  <div className="flex-1 space-y-3 kanban-col overflow-y-auto pr-2 pb-2">
-                    {colTasks.length === 0 ? (
-                      <div className="flex flex-col items-center justify-center h-40 border-2 border-dashed border-slate-300 rounded-2xl text-center bg-white/30">
-                        <Icon size={32} className="text-slate-300 mb-3" />
-                        <p className="text-slate-500 text-sm font-medium">No tasks here</p>
-                        <button
-                          onClick={() => openCreateForColumn(status)}
-                          className="mt-2 text-sm font-bold text-indigo-500 hover:text-indigo-600 transition-colors"
-                        >
-                          + Add a task
-                        </button>
-                      </div>
-                    ) : (
-                      colTasks.map((task) => (
-                        <TaskCard
-                          key={task._id}
-                          task={task}
-                          members={project?.members || []}
-                          onEdit={setEditTask}
-                          onDelete={handleTaskDeleted}
-                          onStatusChange={handleStatusChange}
-                        />
-                      ))
-                    )}
-                  </div>
+                  <button
+                    className="pp-col-add-btn"
+                    onClick={() => openCreate(status)}
+                    title={`Add task to ${label}`}
+                  >
+                    <Plus size={15} style={{ color: accent }} />
+                  </button>
                 </div>
-              );
-            })}
-          </div>
+
+                {/* Task list */}
+                <div 
+                  className="pp-col-body"
+                  onDragOver={(e) => e.preventDefault()}
+                  onDrop={(e) => handleDrop(e, status)}
+                >
+                  {colTasks.length === 0 ? (
+                    <div className="pp-col-empty" onClick={() => openCreate(status)}>
+                      <Icon size={26} style={{ color: accent, opacity: 0.3 }} />
+                      <p>No tasks yet</p>
+                      <span>+ Add a task</span>
+                    </div>
+                  ) : (
+                    colTasks.map(task => (
+                      <TaskCard
+                        key={task._id}
+                        task={task}
+                        members={project?.members || []}
+                        onEdit={setEditTask}
+                        onDelete={handleTaskDeleted}
+                        onStatusChange={handleStatusChange}
+                        onDragStart={(e) => e.dataTransfer.setData('taskId', task._id)}
+                      />
+                    ))
+                  )}
+                </div>
+
+                {/* Add task button at bottom */}
+                <button className="pp-col-footer-btn" onClick={() => openCreate(status)}>
+                  <Plus size={14} /> Add Task
+                </button>
+              </div>
+            );
+          })}
         </div>
+
+        {/* Footer */}
+        <footer className="db-footer" style={{ margin: '0 32px' }}>
+          <span className="db-footer-logo">TaskFlow</span>
+          <span className="db-footer-copy">© 2024 TaskFlow Inc. All rights reserved.</span>
+          <div className="db-footer-links">
+            <a href="#">Privacy Policy</a>
+            <a href="#">Terms of Service</a>
+          </div>
+        </footer>
       </div>
 
       {/* Modals */}
       <CreateTaskModal
         isOpen={createModalOpen}
-        onClose={() => setCreateModalOpen(false)}
+        onClose={() => setCreate(false)}
         projectId={id}
         members={project?.members || []}
         onCreated={handleTaskCreated}
         defaultStatus={createDefaultStatus}
       />
-
       <EditTaskModal
         isOpen={!!editTask}
         onClose={() => setEditTask(null)}
@@ -265,12 +277,11 @@ const ProjectPage = () => {
         members={project?.members || []}
         onUpdated={handleTaskUpdated}
       />
-
       <AddMemberModal
         isOpen={memberModalOpen}
-        onClose={() => setMemberModalOpen(false)}
+        onClose={() => setMember(false)}
         project={project}
-        onUpdated={handleProjectUpdated}
+        onUpdated={setProject}
       />
     </DashboardLayout>
   );

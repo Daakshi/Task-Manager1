@@ -7,6 +7,9 @@ import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
 import DashboardPage from './pages/DashboardPage';
 import ProjectPage from './pages/ProjectPage';
+import ProjectsPage from './pages/ProjectsPage';
+import LandingPage from './pages/LandingPage';
+import ProfilePage from './pages/ProfilePage';
 
 function App() {
   return (
@@ -25,6 +28,22 @@ function App() {
               }
             />
             <Route
+              path="/projects"
+              element={
+                <ProtectedRoute>
+                  <ProjectsPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/profile"
+              element={
+                <ProtectedRoute>
+                  <ProfilePage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
               path="/projects/:id"
               element={
                 <ProtectedRoute>
@@ -32,8 +51,8 @@ function App() {
                 </ProtectedRoute>
               }
             />
-            <Route path="/" element={<Navigate to="/dashboard" replace />} />
-            <Route path="*" element={<Navigate to="/dashboard" replace />} />
+            <Route path="/" element={<LandingPage />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </BrowserRouter>
         <Toaster

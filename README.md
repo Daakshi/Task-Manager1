@@ -10,6 +10,7 @@
 - 📁 **Project Management** – Create projects, invite members by email
 - ✅ **Task Management** – Create, edit, delete tasks with priorities and due dates
 - 🗂️ **Kanban Board** – Visual 3-column board (Todo / In Progress / Done)
+- 🖱️ **Drag and Drop** – HTML5 drag and drop for task status updates
 - 👥 **Team Collaboration** – Add members and assign tasks
 - 🌙 **Dark Mode** – Full dark/light theme toggle
 - 📱 **Responsive Design** – Works on desktop, tablet, and mobile
@@ -165,10 +166,18 @@ The app will be available at:
 ### Tasks
 | Method | Route | Description | Auth |
 |--------|-------|-------------|------|
+| GET | `/api/tasks/me` | Get tasks assigned to current user | Private |
 | GET | `/api/tasks/:projectId` | Get tasks for a project | Private |
 | POST | `/api/tasks` | Create task | Private |
 | PUT | `/api/tasks/:id` | Update task | Private |
 | DELETE | `/api/tasks/:id` | Delete task | Private |
+
+---
+
+## 📖 API Documentation (Postman)
+
+A complete Postman collection is included in the root directory: `TaskFlow-API.postman_collection.json`. 
+You can import this directly into Postman to test all available endpoints. Don't forget to set your `{{token}}` variable after logging in!
 
 ---
 
@@ -212,11 +221,13 @@ The app will be available at:
 
 ## 🌐 Deployment
 
-### Backend (Railway / Render)
-1. Set environment variables in the dashboard
-2. Set `MONGO_URI` to your MongoDB Atlas connection string
-3. Set `CLIENT_URL` to your deployed frontend URL
-4. Deploy with `npm start`
+### Backend (Railway)
+1. Deploy the repo to Railway via GitHub integration
+2. Set Root Directory to `/backend`
+3. Set environment variables in the dashboard:
+   - `MONGO_URI` to your MongoDB Atlas connection string
+   - `CLIENT_URL` to your deployed frontend URL
+4. Generate a public domain under Settings > Networking
 
 ### Frontend (Vercel / Netlify)
 1. Set `VITE_API_URL` if not using proxy

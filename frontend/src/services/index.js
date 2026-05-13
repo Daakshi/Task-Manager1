@@ -18,6 +18,7 @@ export const projectService = {
 };
 
 export const taskService = {
+  getMyTasks: () => api.get('/tasks/me'),
   getByProject: (projectId) => api.get(`/tasks/${projectId}`),
   create: (data) => api.post('/tasks', data),
   update: (id, data) => api.put(`/tasks/${id}`, data),
